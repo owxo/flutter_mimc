@@ -1,16 +1,19 @@
-# flutter_mimc_example
+# flutter_mimc example
 
-Demonstrates how to use the flutter_mimc plugin.
+Generic login, message, ACK, and RTS test application.
 
-## Getting Started
+All live-test values must be supplied at runtime. The repository intentionally
+contains no production endpoint, application ID, account ID, or credential.
 
-This project is a starting point for a Flutter application.
+```bash
+export MIMC_APP_ID='<MIMC_APP_ID>'
+export MIMC_TOKEN_ENDPOINT='https://api.example.com/api/mimc/token'
+export MIMC_ACCOUNT='<TEST_ACCOUNT_A>'
+export MIMC_PEER_ACCOUNT='<TEST_ACCOUNT_B>'
+export MIMC_TEST_AUTH_TOKEN='<LOCAL_TEST_TOKEN>'
 
-A few resources to get you started if this is your first Flutter project:
+../tool/run_live_e2e.sh macos
+```
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Production clients must derive `appAccount` from the authenticated backend
+user and fetch Xiaomi's complete token JSON through their own backend.

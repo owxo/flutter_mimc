@@ -1,0 +1,271 @@
+diff --git a/include/crypto/base64.h b/include/crypto/base64.h
+index ba06332..a979202 100644
+--- a/include/crypto/base64.h
++++ b/include/crypto/base64.h
+@@ -7,7 +7,6 @@
+ 
+ #include <iostream>
+ #include <string>
+-#include <openssl/rc4.h>
+ 
+ #include "common.h"
+ 
+diff --git a/include/crypto/rc4_crypto.h b/include/crypto/rc4_crypto.h
+index e585f09..c50f57d 100644
+--- a/include/crypto/rc4_crypto.h
++++ b/include/crypto/rc4_crypto.h
+@@ -7,7 +7,6 @@
+ 
+ #include <iostream>
+ #include <string>
+-#include <openssl/rc4.h>
+ 
+ #include "common.h"
+ 
+diff --git a/include/mimc/constant.h b/include/mimc/constant.h
+index feeac85..8c01315 100644
+--- a/include/mimc/constant.h
++++ b/include/mimc/constant.h
+@@ -49,7 +49,7 @@ const int16_t HEADER_VERSION = 0x0005;
+ const short BODY_HEADER_PAYLOADTYPE = PROTOBUF;
+ const unsigned int BODY_PAYLOAD_CONN_VERSION = 106;
+ const int BODY_PAYLOAD_CONN_SDK = 33;
+-const char* const RESOLVER_URL = "resolver.msg.xiaomi.net/gslb/";
++const char* const RESOLVER_URL = "https://resolver.msg.xiaomi.net/gslb/";
+ #ifndef STAGING
+ const char* const FE_DOMAIN = "app.chat.xiaomi.net";
+ #else
+diff --git a/include/mimc/utils.h b/include/mimc/utils.h
+index 9af7ddb..fba7484 100644
+--- a/include/mimc/utils.h
++++ b/include/mimc/utils.h
+@@ -11,8 +11,6 @@
+ 
+ #ifdef _WIN32
+ #include "pthread.h"
+-#include "openssl/sha.h"
+-#include "openssl/crypto.h"
+ #include <BaseTsd.h>
+ typedef SSIZE_T ssize_t;
+ #else
+@@ -23,8 +21,6 @@ typedef SSIZE_T ssize_t;
+ #include <sys/ioctl.h>
+ #include <sys/time.h>
+ #include <net/if.h>
+-#include <openssl/sha.h>
+-#include <openssl/crypto.h>
+ #endif
+ 
+ #ifdef __linux
+diff --git a/src/base64.cpp b/src/base64.cpp
+index 2e9ff54..b69034a 100644
+--- a/src/base64.cpp
++++ b/src/base64.cpp
+@@ -2,80 +2,20 @@
+ // Created by zhengsiyao on 6/18/15.
+ //
+ 
+-#include <openssl/bio.h>
+-#include <openssl/evp.h>
+-
++#include "portable_crypto.h"
+ #include <crypto/base64.h>
+ 
+ MSG_CRYPTO_LIB_NS_BEGIN
+ 
+ 	int Base64Util::Encode(const std::string &message, std::string &output)
+ 	{
+-		BIO *bio, *b64;
+-		int res = 0;
+-
+-		char *pp;
+-		long sz;
+-
+-		b64 = BIO_new(BIO_f_base64());
+-		bio = BIO_new(BIO_s_mem());
+-		bio = BIO_push(b64, bio);
+-		BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
+-		BIO_write(bio, message.c_str(), (int)message.size());
+-		if (BIO_flush(bio) != 1) {
+-			res = -1;
+-			goto final_label;
+-		}
+-		sz = BIO_get_mem_data(bio, &pp);
+-		output.assign((const char*)pp, (unsigned long)sz);
+-
+-		final_label:
+-		BIO_free_all(bio);
+-
+-		return res;
++		output = flutter_mimc_compat::Base64Encode(message);
++		return 0;
+ 	}
+ 
+ 	int Base64Util::Decode(const std::string &b64message, std::string &output)
+ 	{
+-#define B64_DECODE_BUF_LEN 512
+-		BIO *bio, *b64;
+-		int res = 0;
+-
+-		unsigned long msg_size = b64message.size();
+-		if (msg_size < 2) {
+-			return -1;
+-		}
+-
+-		// int decodeLen = CalcDecodeLength(b64message);
+-		// char *buffer = new char[decodeLen];
+-		char *buffer;
+-		char pre_alloc_buffer[B64_DECODE_BUF_LEN];
+-		if (msg_size > B64_DECODE_BUF_LEN) {
+-			buffer = new char[msg_size];
+-		} else {
+-			buffer = &pre_alloc_buffer[0];
+-		}
+-
+-		bio = BIO_new_mem_buf((void *)b64message.c_str(), (int)msg_size);
+-
+-		b64 = BIO_new(BIO_f_base64());
+-		bio = BIO_push(b64, bio);
+-		BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
+-		int len = BIO_read(bio, buffer, (int)msg_size);
+-		if (len <= 0) {
+-			res = -1;
+-			goto final_label;
+-		}
+-
+-		output.assign((const char*)buffer, (unsigned long)len);
+-
+-		final_label:
+-		if (msg_size > B64_DECODE_BUF_LEN) {
+-			delete[] buffer;
+-		}
+-		BIO_free_all(bio);
+-
+-		return res;
++		return flutter_mimc_compat::Base64Decode(b64message, &output) ? 0 : -1;
+ 	}
+ 
+ 	int Base64Util::CalcDecodeLength(const std::string& b64input)
+diff --git a/src/rc4_crypto.cpp b/src/rc4_crypto.cpp
+index ae4e1ed..bef8316 100644
+--- a/src/rc4_crypto.cpp
++++ b/src/rc4_crypto.cpp
+@@ -2,6 +2,7 @@
+ // Created by zhengsiyao on 6/16/15.
+ //
+ 
++#include "portable_crypto.h"
+ #include "crypto/rc4_crypto.h"
+ 
+ MSG_CRYPTO_LIB_NS_BEGIN
+@@ -54,9 +55,7 @@ MSG_CRYPTO_LIB_NS_BEGIN
+ 								   unsigned long datalen,
+ 								   unsigned char *outdata)
+ 	{
+-		RC4_KEY rc4_key;
+-		RC4_set_key(&rc4_key, keylen, key);
+-		RC4(&rc4_key, datalen, indata, outdata);
++		flutter_mimc_compat::Rc4(key, keylen, indata, datalen, outdata);
+ 	}
+ 
+ MSG_CRYPTO_LIB_NS_END
+\ No newline at end of file
+diff --git a/src/serverfetcher.cpp b/src/serverfetcher.cpp
+index 7a64663..ff04aa4 100644
+--- a/src/serverfetcher.cpp
++++ b/src/serverfetcher.cpp
+@@ -45,8 +45,8 @@ std::string ServerFetcher::fetchServerAddr(const char* const &url, std::string l
+     XMDLoggerWrapper::instance()->debug("ServerFetcher::fetchServerAddr: param list(%s)", list.c_str());
+ 
+     char delimiter = ',';
+-	uint32_t pos = list.find(delimiter);
+-    uint32_t prePos = pos;
++	std::string::size_type pos = list.find(delimiter);
++    std::string::size_type prePos = pos;
+ 	if (pos == std::string::npos) {
+ 		XMDLoggerWrapper::instance()->error("ServerFetcher::fetchServerAddr param list %s is wrong", list.c_str());
+ 		return "";
+@@ -87,7 +87,8 @@ std::string ServerFetcher::fetchServerAddr(const char* const &url, std::string l
+     std::string result;
+     if (curl) {
+        	curl_easy_setopt(curl, CURLOPT_URL, url_get.c_str());
+-       	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
++        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
++        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+     	curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
+     	struct curl_slist *headers = NULL;
+         headers = curl_slist_append(headers, "Content-Type: application/json");
+diff --git a/src/user.cpp b/src/user.cpp
+index 4665dee..77cb247 100644
+--- a/src/user.cpp
++++ b/src/user.cpp
+@@ -48,7 +48,7 @@ User::User(int64_t appId, std::string appAccount, std::string resource, std::str
+          serverFetchSucceed(false),
+          bindRelayResponse(NULL),
+          isSaveCache(is_save_cache),
+-         lastLoginTimestamp(0),lastPingTimestamp(0),tokenFetcher(NULL),statusHandler(NULL),messageHandler(NULL),
++         lastLoginTimestamp(0),lastPingTimestamp(0),relayConnId(0),tokenFetcher(NULL),statusHandler(NULL),messageHandler(NULL),
+          rtsCallEventHandler(NULL),rtsConnectionHandler(NULL),rtsStreamHandler(NULL),rtsDatagramHandler(NULL),
+          packetManager(new PacketManager()),conn(new Connection()),
+          xmdSendBufferSize(DEFAULT_SEND_BUFFER_SIZE),xmdRecvBufferSize(DEFAULT_RECV_BUFFER_SIZE),
+diff --git a/src/user_c.cpp b/src/user_c.cpp
+index 58e3a8f..dd90248 100644
+--- a/src/user_c.cpp
++++ b/src/user_c.cpp
+@@ -34,7 +34,8 @@ public:
+ 			curl_easy_setopt(curl, CURLOPT_POST, 1);
+ 			curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+ 			curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
+-			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
++			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
++			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+ 
+ 			struct curl_slist *headers = NULL;
+ 			headers = curl_slist_append(headers, "Content-Type: application/json");
+diff --git a/src/utils.cpp b/src/utils.cpp
+index 73dbf8f..22614c0 100644
+--- a/src/utils.cpp
++++ b/src/utils.cpp
+@@ -1,4 +1,5 @@
+ #include <mimc/utils.h>
++#include "portable_crypto.h"
+ #include <chrono>
+ #include <random>
+ 
+@@ -67,17 +68,11 @@ std::string Utils::hexToAscii(const char* src, int srcLen) {
+ }
+ 
+ std::string Utils::hash4SHA1AndBase64(const std::string& plain) {
+-    SHA_CTX c;
+-    unsigned char md[SHA_DIGEST_LENGTH + 1];
+-    SHA1((unsigned char *)(plain.c_str()), plain.length(), md);
+-    SHA1_Init(&c);
+-    SHA1_Update(&c, plain.c_str(), plain.length());
+-    SHA1_Final(md, &c);
+-    md[SHA_DIGEST_LENGTH] = '\0';
+-    OPENSSL_cleanse(&c, sizeof(c));
++    const std::array<uint8_t, 20> md = flutter_mimc_compat::Sha1(
++        reinterpret_cast<const uint8_t*>(plain.data()), plain.size());
+     std::string sha;
+     std::string result;
+-    sha.assign((char *)md, SHA_DIGEST_LENGTH);
++    sha.assign(reinterpret_cast<const char*>(md.data()), md.size());
+     ccb::Base64Util::Encode(sha, result);
+     return result;
+ }
+diff --git a/third-party/json-c/json-c/config_linux.h b/third-party/json-c/json-c/config_linux.h
+index 0b75abb..43c378d 100644
+--- a/third-party/json-c/json-c/config_linux.h
++++ b/third-party/json-c/json-c/config_linux.h
+@@ -37,9 +37,9 @@
+ /* #undef HAVE_DOPRNT */
+ 
+ /* Define to 1 if you have the <endian.h> header file. */
+-#ifndef _WIN32
++#if !defined(_WIN32) && !defined(__APPLE__)
+ #define HAVE_ENDIAN_H 1
+-#endif // !1
++#endif
+ 
+ /* Define to 1 if you have the <fcntl.h> header file. */
+ #define HAVE_FCNTL_H 1

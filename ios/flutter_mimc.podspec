@@ -1,28 +1,27 @@
-#
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint flutter_mimc.podspec' to validate before publishing.
-#
 Pod::Spec.new do |s|
   s.name             = 'flutter_mimc'
-  s.version          = '0.0.1'
-  s.summary          = 'A new Flutter plugin.'
-  s.description      = <<-DESC
-A new Flutter plugin.
-                       DESC
-  s.homepage         = 'http://kf.aissz.com:666/example/'
+  s.version          = '2.0.0-dev.1'
+  s.summary          = 'Flutter plugin for Xiaomi MIMC.'
+  s.description      = 'Maintained Flutter bindings for the Xiaomi MIMC iOS SDK.'
+  s.homepage         = 'https://github.com/owxo/flutter_mimc'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'kieth' => '361554012@qq.com' }
+  s.author           = { 'flutter_mimc contributors' => 'mimc-help@xiaomi.com' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
-  s.public_header_files = 'Classes/**/*.h'
+  s.source_files     = 'Classes/FlutterMimcPlugin.{h,mm}'
+  s.public_header_files = 'Classes/FlutterMimcPlugin.h'
   s.dependency 'Flutter'
+  s.platform = :ios, '12.0'
   s.libraries = 'c++'
-  s.platform = :ios, '8.0'
-  s.frameworks = 'CoreTelephony','SystemConfiguration'
-  # 导入第三方资源库
-  s.vendored_frameworks = 'Frameworks/openssl.framework','Frameworks/MIMCProtoBuffer.framework','Frameworks/MMCSDK.framework'
-
-  # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS[sdk=iphonesimulator*]' => 'x86_64' }
-  s.ios.deployment_target = '8.0'
+  s.frameworks = 'CoreTelephony', 'SystemConfiguration'
+  s.vendored_frameworks = 'Frameworks/MIMCProtoBuffer.framework',
+                          'Frameworks/MMCSDK.framework'
+  s.resource_bundles = {
+    'flutter_mimc_privacy' => ['Resources/PrivacyInfo.xcprivacy']
+  }
+  s.pod_target_xcconfig = {
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+    'DEFINES_MODULE' => 'YES',
+    # Xiaomi's last public framework has no arm64-simulator slice.
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64 i386'
+  }
 end

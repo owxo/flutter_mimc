@@ -1,22 +1,28 @@
 PODS:
   - Flutter (1.0.0)
-  - flutter_mimc (0.0.1):
+  - flutter_mimc (2.0.0-dev.1):
+    - Flutter
+  - integration_test (0.0.1):
     - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_mimc (from `.symlinks/plugins/flutter_mimc/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
   flutter_mimc:
     :path: ".symlinks/plugins/flutter_mimc/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
-  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  flutter_mimc: 55bda5d123df8355bcd86d12f2fb64bd71d2b40b
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_mimc: c0f1f89190dafd8a0fb641031a21ec080bc36342
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
 
-PODFILE CHECKSUM: 87f136592deb4a6d69c21f252305d028675f890d
+PODFILE CHECKSUM: 3c63482e143d1b91d2d2560aee9fb04ecc74ac7e
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.16.2

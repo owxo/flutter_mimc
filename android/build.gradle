@@ -1,39 +1,53 @@
-group 'com.keith.flutter_mimc'
-version '1.0'
+group = "com.xiaomi.mimc.flutter_mimc"
+version = "1.0-SNAPSHOT"
 
 buildscript {
+    ext.kotlin_version = "2.2.20"
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath("com.android.tools.build:gradle:8.11.1")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
 
-rootProject.allprojects {
+allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
-apply plugin: 'com.android.library'
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
 
 android {
-    compileSdkVersion 28
+    namespace = "com.xiaomi.mimc.flutter_mimc"
+
+    compileSdk = 36
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main.java.srcDirs += "src/main/kotlin"
+        test.java.srcDirs += "src/test/kotlin"
+    }
 
     defaultConfig {
-        minSdkVersion 21
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        minSdk = 21
     }
-    lintOptions {
-        disable 'InvalidPackage'
-    }
-}
 
-dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.alibaba:fastjson:1.2.59'
+    dependencies {
+        implementation(files("libs/mimc-java-sdk-2.0.8-SNAPSHOT.jar"))
+    }
 }
