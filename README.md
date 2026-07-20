@@ -3,7 +3,7 @@
 小米 MIMC 的 Flutter 多平台插件，提供统一的 Dart API，支持 Android、iOS、
 Web、macOS、Windows 和 Linux。
 
-当前版本：`2.0.0-dev.2`（预发布版）。
+当前版本：`2.0.0-dev.3`（预发布版）。
 
 > 普通消息、登录和服务端 ACK 已通过 Android 真机验证。RTS 对端数据接收以及
 > Windows/Linux 目标机集成尚未完成生产验收，因此当前版本不应直接作为稳定版使用。
@@ -44,7 +44,8 @@ dependencies:
   flutter_mimc:
     git:
       url: https://github.com/owxo/flutter_mimc.git
-      ref: v2.0.0-dev.2
+      # 生产项目请固定到已验证的完整提交 SHA。
+      ref: <full-commit-sha>
 ```
 
 然后执行：

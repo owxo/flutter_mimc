@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'flutter_mimc'
-  s.version          = '2.0.0-dev.2'
+  s.version          = '2.0.0-dev.3'
   s.summary          = 'Flutter plugin for Xiaomi MIMC.'
   s.description      = 'Maintained Flutter bindings for the Xiaomi MIMC iOS SDK.'
   s.homepage         = 'https://github.com/owxo/flutter_mimc'
@@ -20,8 +20,10 @@ Pod::Spec.new do |s|
   }
   simulator_arch_settings = {
     # The arm64 slice in Xiaomi's legacy fat framework targets physical iOS,
-    # not the arm64 simulator. Apply the exclusion to both the Pod target and
-    # the consuming Runner target so Xcode never tries to link that slice.
+    # not the arm64 simulator. Force x86_64 as well as excluding unsupported
+    # slices because Flutter's Generated.xcconfig can override exclusions in
+    # a consuming app after CocoaPods' xcconfig has been included.
+    'ARCHS[sdk=iphonesimulator*]' => 'x86_64',
     'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64 i386'
   }
   s.pod_target_xcconfig = {

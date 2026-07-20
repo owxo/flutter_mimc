@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'flutter_mimc'
-  s.version          = '2.0.0-dev.2'
+  s.version          = '2.0.0-dev.3'
   s.summary          = 'Desktop FFI implementation of the Flutter MIMC plugin.'
   s.description      = 'Xiaomi MIMC desktop bridge for macOS.'
   s.homepage         = 'https://github.com/owxo/flutter_mimc'

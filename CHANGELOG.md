@@ -1,3 +1,8 @@
+## 2.0.0-dev.3
+
+- iOS Simulator：除排除旧 MIMC framework 的 arm64 真机 slice 外，同时将模拟器架构固定为 x86_64，避免 Flutter `Generated.xcconfig` 覆盖 CocoaPods 排除项后再次构建 arm64。
+- 验证 `use_frameworks! :linkage => :static`、`use_modular_headers!` 的 FlutterFlow 工程能够发现并构建 `flutter_mimc` Pod target。
+
 ## 2.0.0-dev.2
 
 * Fixed iOS Simulator builds by propagating the legacy framework's arm64

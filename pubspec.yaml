@@ -1,6 +1,6 @@
 name: flutter_mimc
 description: A maintained, multi-platform Flutter plugin for Xiaomi MIMC.
-version: 2.0.0-dev.2
+version: 2.0.0-dev.3
 homepage: https://github.com/owxo/flutter_mimc
 repository: https://github.com/owxo/flutter_mimc
 issue_tracker: https://github.com/owxo/flutter_mimc/issues
