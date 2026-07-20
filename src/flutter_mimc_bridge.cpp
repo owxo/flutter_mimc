@@ -655,7 +655,7 @@ bool MapRtsChannelType(int32_t value, mimc_sdk_channel_type_t* output) {
 
 }  // namespace
 
-const char* flutter_mimc_native_version(void) { return "2.0.0-dev.1"; }
+const char* flutter_mimc_native_version(void) { return "2.0.0-dev.2"; }
 
 const char* flutter_mimc_last_error(void) {
   static thread_local std::string result;

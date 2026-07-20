@@ -1,3 +1,9 @@
+## 2.0.0-dev.2
+
+* Fixed iOS Simulator builds by propagating the legacy framework's arm64
+  exclusion to the consuming application target. Physical-device arm64 builds
+  are unchanged.
+
 ## 2.0.0-dev.1
 
 Pre-release: the public API and platform bridges are implemented. Live MIMC
